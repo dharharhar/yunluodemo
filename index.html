@@ -1,58 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Xylophone Circles - Web Audio API</title>
-<style>
-  body {
-    background: #111;
-    color: white;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5vh;
-    height: 100vh;
-    margin: 0;
-    padding: 0 2vw;
-    user-select: none;
-  }
-  .row {
-    display: flex;
-    justify-content: center;
-    gap: 2vw;
-  }
-  .circle {
-    width: 10vw;
-    height: 10vw;
-    max-width: 90px;
-    max-height: 90px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: clamp(14px, 3vw, 20px);
-    color: black;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
-  }
-  /* Alternate orange & green per row */
-  .row:nth-child(1) .circle:nth-child(odd),
-  .row:nth-child(2) .circle:nth-child(even) {
-    background: orange;
-  }
-  .row:nth-child(1) .circle:nth-child(even),
-  .row:nth-child(2) .circle:nth-child(odd) {
-    background: green;
-  }
-  .circle:active {
-    transform: scale(0.9);
-    box-shadow: 0 0 10px white;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xylophone Circles - Web Audio API</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5vh;
+      height: 100vh;
+      margin: 0;
+      padding: 0 2vw;
+      user-select: none;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 2vw;
+    }
+    .circle {
+      width: 10vw;
+      height: 10vw;
+      max-width: 90px;
+      max-height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: clamp(14px, 3vw, 20px);
+      color: black;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    /* Alternate orange & green per row */
+    .row:nth-child(1) .circle:nth-child(odd),
+    .row:nth-child(2) .circle:nth-child(even) {
+      background: orange;
+    }
+    .row:nth-child(1) .circle:nth-child(even),
+    .row:nth-child(2) .circle:nth-child(odd) {
+      background: green;
+    }
+    .circle:active {
+      transform: scale(0.9);
+      box-shadow: 0 0 10px white;
+    }
+  </style>
 </head>
 <body>
 
@@ -105,6 +105,16 @@
   }
 
   function playSound(buffer) {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        _play(buffer);
+      });
+    } else {
+      _play(buffer);
+    }
+  }
+
+  function _play(buffer) {
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
     source.connect(audioCtx.destination);
@@ -122,7 +132,6 @@
     });
   }
 
-  // Unlock AudioContext and load sounds on first user interaction
   async function initAudio() {
     if (audioCtx.state === 'suspended') {
       await audioCtx.resume();

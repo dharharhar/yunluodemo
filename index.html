@@ -77,21 +77,30 @@
 </div>
 
 <script>
-  const sounds = {};
+  const soundsPool = {};
+  const poolSize = 5;
 
-  // Preload audio elements
+  // Preload audio pools
   document.querySelectorAll('.circle').forEach(circle => {
     const soundId = circle.getAttribute('data-sound');
-    sounds[soundId] = new Audio(`sounds/${soundId}.mp3`);
+    if (!soundsPool[soundId]) {
+      soundsPool[soundId] = [];
+      for (let i = 0; i < poolSize; i++) {
+        const audio = new Audio(`sounds/${soundId}.mp3`);
+        soundsPool[soundId].push(audio);
+      }
+    }
   });
 
-  // Play preloaded audio on click
+  // Play from pool on tap
   document.querySelectorAll('.circle').forEach(circle => {
     circle.addEventListener('click', () => {
       const soundId = circle.getAttribute('data-sound');
-      const audio = sounds[soundId];
-      if (!audio) return;
-      audio.currentTime = 0; // rewind to start
+      const pool = soundsPool[soundId];
+      if (!pool) return;
+
+      const audio = pool.find(a => a.paused) || pool[0];
+      audio.currentTime = 0;
       audio.play();
     });
   });

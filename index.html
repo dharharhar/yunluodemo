@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xylophone Circles - Simple Audio</title>
+  <title>Xylophone Circles - Smooth Audio</title>
   <style>
     body {
       background: #111;
@@ -77,11 +77,31 @@
 </div>
 
 <script>
+  // Preload audio elements once
+  const audioElements = {};
+
+  const soundIds = [
+    "sound1", "sound2", "sound3", "sound4", "sound5", "sound6",
+    "sound7", "sound8", "sound9", "sound10", "sound11", "sound12",
+    "sound13", "sound14"
+  ];
+
+  // Preload
+  soundIds.forEach(id => {
+    const audio = new Audio(`./sounds/${id}.mp3`);
+    audio.preload = 'auto';
+    audioElements[id] = audio;
+  });
+
   document.querySelectorAll('.circle').forEach(circle => {
     circle.addEventListener('click', () => {
       const soundId = circle.getAttribute('data-sound');
-      const audio = new Audio(`./sounds/${soundId}.mp3`);
-      audio.play().catch(e => console.error('Audio play error:', e));
+      const originalAudio = audioElements[soundId];
+      if (!originalAudio) return;
+
+      // Clone the audio to allow overlapping plays
+      const audioClone = originalAudio.cloneNode();
+      audioClone.play().catch(e => console.error('Audio play error:', e));
     });
   });
 </script>

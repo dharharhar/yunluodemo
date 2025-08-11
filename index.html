@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Xylophone Circles - Glockenspiel</title>
+<title>Xylophone Circles - Web Audio API</title>
 <style>
   body {
     background: #111;
@@ -77,31 +77,60 @@
 </div>
 
 <script>
-  const soundsPool = {};
-  const poolSize = 5;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
 
-  // Preload audio pools
-  document.querySelectorAll('.circle').forEach(circle => {
-    const soundId = circle.getAttribute('data-sound');
-    if (!soundsPool[soundId]) {
-      soundsPool[soundId] = [];
-      for (let i = 0; i < poolSize; i++) {
-        const audio = new Audio(`sounds/${soundId}.mp3`);
-        soundsPool[soundId].push(audio);
-      }
+  const soundBuffers = {};
+
+  async function loadSound(url) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioCtx.decodeAudioData(arrayBuffer);
+  }
+
+  async function loadAllSounds() {
+    const soundFiles = [
+      "sound1", "sound2", "sound3", "sound4", "sound5", "sound6",
+      "sound7", "sound8", "sound9", "sound10", "sound11", "sound12",
+      "sound13", "sound14"
+    ];
+
+    const promises = soundFiles.map(async (soundId) => {
+      const buffer = await loadSound(`sounds/${soundId}.mp3`);
+      soundBuffers[soundId] = buffer;
+    });
+
+    await Promise.all(promises);
+  }
+
+  function playSound(buffer) {
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
+  }
+
+  // Unlock audio context on user interaction for iOS
+  function unlockAudioContext(ctx) {
+    if (ctx.state === 'suspended') {
+      const resume = () => {
+        ctx.resume();
+        document.body.removeEventListener('touchstart', resume);
+        document.body.removeEventListener('click', resume);
+      };
+      document.body.addEventListener('touchstart', resume, false);
+      document.body.addEventListener('click', resume, false);
     }
-  });
+  }
 
-  // Play from pool on tap
-  document.querySelectorAll('.circle').forEach(circle => {
-    circle.addEventListener('click', () => {
-      const soundId = circle.getAttribute('data-sound');
-      const pool = soundsPool[soundId];
-      if (!pool) return;
-
-      const audio = pool.find(a => a.paused) || pool[0];
-      audio.currentTime = 0;
-      audio.play();
+  loadAllSounds().then(() => {
+    unlockAudioContext(audioCtx);
+    document.querySelectorAll('.circle').forEach(circle => {
+      circle.addEventListener('click', () => {
+        const soundId = circle.getAttribute('data-sound');
+        const buffer = soundBuffers[soundId];
+        if (buffer) playSound(buffer);
+      });
     });
   });
 </script>

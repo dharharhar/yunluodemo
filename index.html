@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Xylophone Circles - Web Audio API</title>
+  <title>Xylophone Circles - Simple Audio</title>
   <style>
     body {
       background: #111;
@@ -77,76 +77,13 @@
 </div>
 
 <script>
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  const audioCtx = new AudioContext();
-
-  const soundBuffers = {};
-  let soundsLoaded = false;
-
-  async function loadSound(url) {
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    return await audioCtx.decodeAudioData(arrayBuffer);
-  }
-
-  async function loadAllSounds() {
-    const soundFiles = [
-      "sound1", "sound2", "sound3", "sound4", "sound5", "sound6",
-      "sound7", "sound8", "sound9", "sound10", "sound11", "sound12",
-      "sound13", "sound14"
-    ];
-
-    const promises = soundFiles.map(async (soundId) => {
-      const buffer = await loadSound(`./sounds/${soundId}.mp3`);
-      soundBuffers[soundId] = buffer;
+  document.querySelectorAll('.circle').forEach(circle => {
+    circle.addEventListener('click', () => {
+      const soundId = circle.getAttribute('data-sound');
+      const audio = new Audio(`./sounds/${soundId}.mp3`);
+      audio.play().catch(e => console.error('Audio play error:', e));
     });
-
-    await Promise.all(promises);
-  }
-
-  function playSound(buffer) {
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
-        _play(buffer);
-      });
-    } else {
-      _play(buffer);
-    }
-  }
-
-  function _play(buffer) {
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start(0);
-  }
-
-  function enableButtons() {
-    document.querySelectorAll('.circle').forEach(circle => {
-      circle.addEventListener('click', () => {
-        if (!soundsLoaded) return;
-        const soundId = circle.getAttribute('data-sound');
-        const buffer = soundBuffers[soundId];
-        if (buffer) playSound(buffer);
-      });
-    });
-  }
-
-  async function initAudio() {
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume();
-    }
-    if (!soundsLoaded) {
-      await loadAllSounds();
-      soundsLoaded = true;
-      enableButtons();
-    }
-    document.body.removeEventListener('click', initAudio);
-    document.body.removeEventListener('touchstart', initAudio);
-  }
-
-  document.body.addEventListener('click', initAudio);
-  document.body.addEventListener('touchstart', initAudio);
+  });
 </script>
 
 </body>

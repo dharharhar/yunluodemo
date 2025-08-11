@@ -1,179 +1,101 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Xylophone Circles - Glockenspiel</title>
-
 <style>
-
   body {
-
     background: #111;
-
     color: white;
-
     font-family: sans-serif;
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 5vh;
-
     height: 100vh;
-
     margin: 0;
-
     padding: 0 2vw;
-
   }
-
   .row {
-
     display: flex;
-
     justify-content: center;
-
     gap: 2vw;
-
   }
-
   .circle {
-
     width: 10vw;
-
     height: 10vw;
-
     max-width: 90px;
-
     max-height: 90px;
-
     border-radius: 50%;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     cursor: pointer;
-
     font-weight: bold;
-
     font-size: clamp(14px, 3vw, 20px);
-
     color: black;
-
     user-select: none;
-
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-
   }
-
   /* Alternate orange & green per row */
-
   .row:nth-child(1) .circle:nth-child(odd),
-
   .row:nth-child(2) .circle:nth-child(even) {
-
     background: orange;
-
   }
-
   .row:nth-child(1) .circle:nth-child(even),
-
   .row:nth-child(2) .circle:nth-child(odd) {
-
     background: green;
-
   }
-
   .circle:active {
-
     transform: scale(0.9);
-
     box-shadow: 0 0 10px white;
-
   }
-
 </style>
-
 </head>
-
 <body>
 
-
-
 <div class="row">
-
-  <div class="circle" data-sound="soun7">B</div>
-
+  <div class="circle" data-sound="sound7">B</div>
   <div class="circle" data-sound="sound8">C</div>
-
   <div class="circle" data-sound="sound9">D</div>
-
   <div class="circle" data-sound="sound10">E</div>
-
   <div class="circle" data-sound="sound11">F</div>
-
   <div class="circle" data-sound="sound12">G</div>
-
   <div class="circle" data-sound="sound13">A</div>
-
   <div class="circle" data-sound="sound14">B</div>
-
 </div>
-
-
 
 <div class="row">
-
   <div class="circle" data-sound="sound1">C</div>
-
   <div class="circle" data-sound="sound2">D</div>
-
   <div class="circle" data-sound="sound3">E</div>
-
   <div class="circle" data-sound="sound4">F</div>
-
   <div class="circle" data-sound="sound5">G</div>
-
   <div class="circle" data-sound="sound6">A</div>
-
 </div>
-
-
 
 <script>
+  const sounds = {};
 
+  // Preload audio elements
   document.querySelectorAll('.circle').forEach(circle => {
-
-    circle.addEventListener('click', () => {
-
-      const soundId = circle.getAttribute('data-sound');
-
-      const audio = new Audio(`sounds/${soundId}.mp3`);
-
-      audio.play();
-
-    });
-
+    const soundId = circle.getAttribute('data-sound');
+    sounds[soundId] = new Audio(`sounds/${soundId}.mp3`);
   });
 
+  // Play preloaded audio on click
+  document.querySelectorAll('.circle').forEach(circle => {
+    circle.addEventListener('click', () => {
+      const soundId = circle.getAttribute('data-sound');
+      const audio = sounds[soundId];
+      if (!audio) return;
+      audio.currentTime = 0; // rewind to start
+      audio.play();
+    });
+  });
 </script>
 
-
-
 </body>
-
 </html>

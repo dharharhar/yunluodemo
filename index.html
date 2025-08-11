@@ -38,7 +38,6 @@
     font-size: clamp(14px, 3vw, 20px);
     color: black;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    background: grey;
   }
   /* Alternate orange & green per row */
   .row:nth-child(1) .circle:nth-child(odd),
@@ -53,33 +52,28 @@
     transform: scale(0.9);
     box-shadow: 0 0 10px white;
   }
-  /* Disabled state before load */
-  .circle.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
 </style>
 </head>
 <body>
 
 <div class="row">
-  <div class="circle disabled" data-sound="sound7">B</div>
-  <div class="circle disabled" data-sound="sound8">C</div>
-  <div class="circle disabled" data-sound="sound9">D</div>
-  <div class="circle disabled" data-sound="sound10">E</div>
-  <div class="circle disabled" data-sound="sound11">F</div>
-  <div class="circle disabled" data-sound="sound12">G</div>
-  <div class="circle disabled" data-sound="sound13">A</div>
-  <div class="circle disabled" data-sound="sound14">B</div>
+  <div class="circle" data-sound="sound7">B</div>
+  <div class="circle" data-sound="sound8">C</div>
+  <div class="circle" data-sound="sound9">D</div>
+  <div class="circle" data-sound="sound10">E</div>
+  <div class="circle" data-sound="sound11">F</div>
+  <div class="circle" data-sound="sound12">G</div>
+  <div class="circle" data-sound="sound13">A</div>
+  <div class="circle" data-sound="sound14">B</div>
 </div>
 
 <div class="row">
-  <div class="circle disabled" data-sound="sound1">C</div>
-  <div class="circle disabled" data-sound="sound2">D</div>
-  <div class="circle disabled" data-sound="sound3">E</div>
-  <div class="circle disabled" data-sound="sound4">F</div>
-  <div class="circle disabled" data-sound="sound5">G</div>
-  <div class="circle disabled" data-sound="sound6">A</div>
+  <div class="circle" data-sound="sound1">C</div>
+  <div class="circle" data-sound="sound2">D</div>
+  <div class="circle" data-sound="sound3">E</div>
+  <div class="circle" data-sound="sound4">F</div>
+  <div class="circle" data-sound="sound5">G</div>
+  <div class="circle" data-sound="sound6">A</div>
 </div>
 
 <script>
@@ -103,7 +97,7 @@
     ];
 
     const promises = soundFiles.map(async (soundId) => {
-      const buffer = await loadSound(`sounds/${soundId}.mp3`);
+      const buffer = await loadSound(`./sounds/${soundId}.mp3`);
       soundBuffers[soundId] = buffer;
     });
 
@@ -119,7 +113,6 @@
 
   function enableButtons() {
     document.querySelectorAll('.circle').forEach(circle => {
-      circle.classList.remove('disabled');
       circle.addEventListener('click', () => {
         if (!soundsLoaded) return;
         const soundId = circle.getAttribute('data-sound');

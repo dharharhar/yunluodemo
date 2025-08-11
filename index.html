@@ -104,27 +104,23 @@
   }
 
   function playSound(buffer) {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume().then(() => {
+        _play(buffer);
+      });
+    } else {
+      _play(buffer);
+    }
+  }
+
+  function _play(buffer) {
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
     source.connect(audioCtx.destination);
     source.start(0);
   }
 
-  // Unlock audio context on user interaction for iOS
-  function unlockAudioContext(ctx) {
-    if (ctx.state === 'suspended') {
-      const resume = () => {
-        ctx.resume();
-        document.body.removeEventListener('touchstart', resume);
-        document.body.removeEventListener('click', resume);
-      };
-      document.body.addEventListener('touchstart', resume, false);
-      document.body.addEventListener('click', resume, false);
-    }
-  }
-
   loadAllSounds().then(() => {
-    unlockAudioContext(audioCtx);
     document.querySelectorAll('.circle').forEach(circle => {
       circle.addEventListener('click', () => {
         const soundId = circle.getAttribute('data-sound');

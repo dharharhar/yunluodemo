@@ -17,6 +17,7 @@
     height: 100vh;
     margin: 0;
     padding: 0 2vw;
+    user-select: none;
   }
   .row {
     display: flex;
@@ -36,8 +37,8 @@
     font-weight: bold;
     font-size: clamp(14px, 3vw, 20px);
     color: black;
-    user-select: none;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
+    background: grey;
   }
   /* Alternate orange & green per row */
   .row:nth-child(1) .circle:nth-child(odd),
@@ -52,28 +53,33 @@
     transform: scale(0.9);
     box-shadow: 0 0 10px white;
   }
+  /* Disabled state before load */
+  .circle.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
 </style>
 </head>
 <body>
 
 <div class="row">
-  <div class="circle" data-sound="sound7">B</div>
-  <div class="circle" data-sound="sound8">C</div>
-  <div class="circle" data-sound="sound9">D</div>
-  <div class="circle" data-sound="sound10">E</div>
-  <div class="circle" data-sound="sound11">F</div>
-  <div class="circle" data-sound="sound12">G</div>
-  <div class="circle" data-sound="sound13">A</div>
-  <div class="circle" data-sound="sound14">B</div>
+  <div class="circle disabled" data-sound="sound7">B</div>
+  <div class="circle disabled" data-sound="sound8">C</div>
+  <div class="circle disabled" data-sound="sound9">D</div>
+  <div class="circle disabled" data-sound="sound10">E</div>
+  <div class="circle disabled" data-sound="sound11">F</div>
+  <div class="circle disabled" data-sound="sound12">G</div>
+  <div class="circle disabled" data-sound="sound13">A</div>
+  <div class="circle disabled" data-sound="sound14">B</div>
 </div>
 
 <div class="row">
-  <div class="circle" data-sound="sound1">C</div>
-  <div class="circle" data-sound="sound2">D</div>
-  <div class="circle" data-sound="sound3">E</div>
-  <div class="circle" data-sound="sound4">F</div>
-  <div class="circle" data-sound="sound5">G</div>
-  <div class="circle" data-sound="sound6">A</div>
+  <div class="circle disabled" data-sound="sound1">C</div>
+  <div class="circle disabled" data-sound="sound2">D</div>
+  <div class="circle disabled" data-sound="sound3">E</div>
+  <div class="circle disabled" data-sound="sound4">F</div>
+  <div class="circle disabled" data-sound="sound5">G</div>
+  <div class="circle disabled" data-sound="sound6">A</div>
 </div>
 
 <script>
@@ -81,6 +87,7 @@
   const audioCtx = new AudioContext();
 
   const soundBuffers = {};
+  let soundsLoaded = false;
 
   async function loadSound(url) {
     const response = await fetch(url);
@@ -104,31 +111,40 @@
   }
 
   function playSound(buffer) {
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume().then(() => {
-        _play(buffer);
-      });
-    } else {
-      _play(buffer);
-    }
-  }
-
-  function _play(buffer) {
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
     source.connect(audioCtx.destination);
     source.start(0);
   }
 
-  loadAllSounds().then(() => {
+  function enableButtons() {
     document.querySelectorAll('.circle').forEach(circle => {
+      circle.classList.remove('disabled');
       circle.addEventListener('click', () => {
+        if (!soundsLoaded) return;
         const soundId = circle.getAttribute('data-sound');
         const buffer = soundBuffers[soundId];
         if (buffer) playSound(buffer);
       });
     });
-  });
+  }
+
+  // Unlock AudioContext and load sounds on first user interaction
+  async function initAudio() {
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+    if (!soundsLoaded) {
+      await loadAllSounds();
+      soundsLoaded = true;
+      enableButtons();
+    }
+    document.body.removeEventListener('click', initAudio);
+    document.body.removeEventListener('touchstart', initAudio);
+  }
+
+  document.body.addEventListener('click', initAudio);
+  document.body.addEventListener('touchstart', initAudio);
 </script>
 
 </body>
